@@ -3,7 +3,8 @@
 var fs = require('fs'),
     soap = require('..'),
     http = require('http'),
-    assert = require('assert');
+    assert = require('assert'),
+    sinon = require('sinon');
 
 describe('SOAP Client', function() {
   it('should error on invalid host', function(done) {
@@ -45,6 +46,18 @@ describe('SOAP Client', function() {
       done();
     });
     assert(!called);
+  });
+
+  it('should allow bypass of wsdl cache', function(done) {
+    var openWsdlSpy = sinon.spy(soap, "open_wsdl");
+    soap.createClient(__dirname + '/wsdl/default_namespace.wsdl',
+      {bypassCache: true},
+      function(err, client) {
+        assert.ok(client);
+        assert.ok(!err);
+        assert.ok(openWsdlSpy.called);
+        done();
+      });
   });
 
   it('should allow customization of httpClient', function(done) {
